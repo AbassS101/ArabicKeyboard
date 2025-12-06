@@ -1,0 +1,45 @@
+{
+  "manifest_version": 3,
+  "name": "Arabic Keyboard Visual",
+  "version": "1.0.0",
+  "description": "Visual Arabic keyboard overlay to help you type Arabic characters anywhere",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "scripting"
+  ],
+  "commands": {
+    "toggle-keyboard": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+A",
+        "mac": "Command+Shift+A"
+      },
+      "description": "Toggle Arabic keyboard overlay"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"],
+      "css": ["styles.css"],
+      "all_frames": true
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}
+

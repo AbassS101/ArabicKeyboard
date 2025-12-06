@@ -1,0 +1,36 @@
+// Simple script to generate placeholder icons using Node.js
+// Run with: node generate_icons.js
+
+const fs = require('fs');
+const path = require('path');
+
+// Create a simple 1x1 PNG data URI (minimal valid PNG)
+// This is a minimal PNG file (1x1 transparent pixel)
+const minimalPNG = Buffer.from([
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, // PNG signature
+  0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, // IHDR chunk
+  0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, // 1x1 dimensions
+  0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4, 0x89,
+  0x00, 0x00, 0x00, 0x0A, 0x49, 0x44, 0x41, 0x54, // IDAT chunk
+  0x78, 0x9C, 0x63, 0x00, 0x01, 0x00, 0x00, 0x05, 0x00, 0x01,
+  0x0D, 0x0A, 0x2D, 0xB4, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44, // IEND
+  0xAE, 0x42, 0x60, 0x82
+]);
+
+// Ensure icons directory exists
+const iconsDir = path.join(__dirname, 'icons');
+if (!fs.existsSync(iconsDir)) {
+  fs.mkdirSync(iconsDir);
+}
+
+// Create placeholder icons (same file for all sizes - Chrome will scale)
+const sizes = [16, 48, 128];
+sizes.forEach(size => {
+  const filePath = path.join(iconsDir, `icon${size}.png`);
+  fs.writeFileSync(filePath, minimalPNG);
+  console.log(`Created ${filePath}`);
+});
+
+console.log('\n✅ Icon files created successfully!');
+console.log('You can now reload the extension in Chrome.');
+

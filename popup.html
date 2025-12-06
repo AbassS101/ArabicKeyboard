@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 250px;
+      padding: 20px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      margin: 0;
+    }
+    h1 {
+      font-size: 18px;
+      margin: 0 0 15px 0;
+      text-align: center;
+    }
+    button {
+      width: 100%;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid white;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: all 0.3s ease;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.05);
+    }
+    .info {
+      font-size: 12px;
+      text-align: center;
+      margin-top: 15px;
+      opacity: 0.9;
+      padding-top: 15px;
+      border-top: 1px solid rgba(255, 255, 255, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <h1>🔤 Arabic Keyboard</h1>
+  <button id="toggleBtn">Toggle Keyboard</button>
+  <div class="info">
+    <p>Shortcut: <strong>Ctrl+Shift+A</strong></p>
+    <p>Click the button or use the shortcut to show/hide the Arabic keyboard overlay.</p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
+
