@@ -75,7 +75,7 @@ function createKeyboardOverlay() {
     </div>
     <div class="resize-handle" id="resize-handle"></div>
     <div class="keyboard-layout">
-      <!-- Row 1 -->
+      <!-- Row 1: QWERTY (left to right) -->
       <div class="keyboard-row">
         <div class="key" data-en="q" data-ar="ض"><span class="en-key">q</span><span class="ar-key">ض</span></div>
         <div class="key" data-en="w" data-ar="ص"><span class="en-key">w</span><span class="ar-key">ص</span></div>
@@ -90,7 +90,7 @@ function createKeyboardOverlay() {
         <div class="key" data-en="[" data-ar="ج"><span class="en-key">[</span><span class="ar-key">ج</span></div>
         <div class="key" data-en="]" data-ar="د"><span class="en-key">]</span><span class="ar-key">د</span></div>
       </div>
-      <!-- Row 2 -->
+      <!-- Row 2: ASDF (left to right) -->
       <div class="keyboard-row">
         <div class="key" data-en="a" data-ar="ش"><span class="en-key">a</span><span class="ar-key">ش</span></div>
         <div class="key" data-en="s" data-ar="س"><span class="en-key">s</span><span class="ar-key">س</span></div>
@@ -104,7 +104,7 @@ function createKeyboardOverlay() {
         <div class="key" data-en=";" data-ar="ك"><span class="en-key">;</span><span class="ar-key">ك</span></div>
         <div class="key" data-en="'" data-ar="ط"><span class="en-key">'</span><span class="ar-key">ط</span></div>
       </div>
-      <!-- Row 3 -->
+      <!-- Row 3: ZXCV (left to right) -->
       <div class="keyboard-row">
         <div class="key" data-en="z" data-ar="ئ"><span class="en-key">z</span><span class="ar-key">ئ</span></div>
         <div class="key" data-en="x" data-ar="ء"><span class="en-key">x</span><span class="ar-key">ء</span></div>
@@ -118,7 +118,7 @@ function createKeyboardOverlay() {
         <div class="key" data-en="/" data-ar="ظ"><span class="en-key">/</span><span class="ar-key">ظ</span></div>
       </div>
       <div class="keyboard-info">
-        <p>Press keys on your keyboard to see the Arabic equivalent</p>
+        <p>QWERTY layout - English letters with Arabic equivalents</p>
       </div>
       <div style="font-size: 9px; color: rgba(255,255,255,0.7); text-align: center; margin-top: 6px;">
         Drag to move
