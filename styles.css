@@ -1,43 +1,50 @@
 #arabic-keyboard-overlay {
   position: fixed !important;
-  bottom: auto !important;
-  right: auto !important;
-  top: auto !important;
-  left: auto !important;
-  width: auto;
-  height: auto;
-  background: transparent;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
   display: none;
   z-index: 2147483647 !important;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  pointer-events: none;
-  isolation: isolate;
-  transform: translateZ(0);
+  pointer-events: none !important;
+  isolation: isolate !important;
+  transform: translateZ(0) !important;
   will-change: transform;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
 }
 
 .keyboard-container {
-  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
-  border-radius: 15px;
-  padding: 15px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-  max-width: 600px;
-  min-width: 300px;
-  width: auto;
+  background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%) !important;
+  border-radius: 15px !important;
+  padding: 15px !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5) !important;
+  max-width: 600px !important;
+  min-width: 300px !important;
+  width: auto !important;
   animation: slideIn 0.3s ease-out;
   pointer-events: auto !important;
-  cursor: move;
-  opacity: 0.95;
+  cursor: move !important;
+  opacity: 0.95 !important;
   transition: opacity 0.2s ease;
-  position: relative;
+  position: absolute !important;
   overflow: hidden;
-  border: 2px solid #1a252f;
-  touch-action: none;
-  -webkit-user-select: none;
-  user-select: none;
+  border: 2px solid #1a252f !important;
+  touch-action: none !important;
+  -webkit-user-select: none !important;
+  user-select: none !important;
   z-index: 2147483647 !important;
-  transform: translateZ(0);
+  transform: translateZ(0) !important;
   will-change: transform;
+  box-sizing: border-box !important;
+  visibility: visible !important;
 }
 
 .keyboard-container:hover {

@@ -21,6 +21,7 @@ const arabicKeyboard = {
 let keyboardVisible = false;
 let keyboardOverlay = null;
 let savedPosition = { x: 0, y: 0, scale: 1, width: null };
+let isToggling = false; // Lock to prevent rapid toggling issues
 
 // Load saved position before creating overlay
 function loadSavedSettings(callback) {
@@ -46,12 +47,26 @@ function loadSavedSettings(callback) {
 
 // Create keyboard overlay
 function createKeyboardOverlay() {
-  // Remove any existing overlays first
+  // Remove any existing overlays first - be more aggressive
   const existingOverlays = document.querySelectorAll('#arabic-keyboard-overlay');
-  existingOverlays.forEach(overlay => overlay.remove());
+  existingOverlays.forEach(overlay => {
+    try {
+      overlay.remove();
+    } catch (e) {
+      // If remove fails, try to hide it and clear references
+      overlay.style.display = 'none';
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }
+  });
   keyboardOverlay = null;
   
-  if (keyboardOverlay) return keyboardOverlay;
+  // Wait a frame to ensure DOM is clean
+  if (existingOverlays.length > 0) {
+    // Force cleanup
+    return null;
+  }
 
   const overlay = document.createElement('div');
   overlay.id = 'arabic-keyboard-overlay';
@@ -119,19 +134,41 @@ function createKeyboardOverlay() {
     </div>
   `;
 
-  document.body.appendChild(overlay);
+  // Try to append to documentElement first (more reliable), fallback to body
+  const parentElement = document.documentElement || document.body;
+  try {
+    parentElement.appendChild(overlay);
+  } catch (e) {
+    // If that fails, try body
+    if (document.body) {
+      document.body.appendChild(overlay);
+    } else {
+      // Last resort - wait for body
+      const observer = new MutationObserver(() => {
+        if (document.body) {
+          document.body.appendChild(overlay);
+          observer.disconnect();
+        }
+      });
+      observer.observe(document.documentElement, { childList: true, subtree: true });
+      if (document.body) {
+        document.body.appendChild(overlay);
+        observer.disconnect();
+      }
+    }
+  }
 
   // Make keyboard draggable - get references first
   const container = overlay.querySelector('.keyboard-container');
   const header = overlay.querySelector('.keyboard-header');
   
   // Size controls
-  let currentScale = savedPosition.scale;
+  let currentScale = savedPosition.scale || 1;
   const minScale = 0.6;
   const maxScale = 1.5;
   const scaleStep = 0.1;
-  let xOffset = savedPosition.x;
-  let yOffset = savedPosition.y;
+  let xOffset = savedPosition.x || 0;
+  let yOffset = savedPosition.y || 0;
   
   // Apply saved width if exists
   if (savedPosition.width) {
@@ -141,35 +178,95 @@ function createKeyboardOverlay() {
   // Apply saved position and scale immediately
   function setTranslate(xPos, yPos, el, scale = currentScale) {
     el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0) scale(${scale})`;
+    el.style.transformOrigin = 'top left';
+    // Ensure container is always visible
+    el.style.visibility = 'visible';
+    el.style.opacity = '0.95';
+    el.style.display = 'block';
+  }
+  
+  // Get default center position
+  function getDefaultPosition() {
+    // Center on screen as default
+    const overlayWidth = container.offsetWidth || 400;
+    const overlayHeight = container.offsetHeight || 250;
+    return {
+      x: Math.max(20, (window.innerWidth - overlayWidth) / 2),
+      y: Math.max(20, (window.innerHeight - overlayHeight) / 2)
+    };
   }
   
   // Ensure keyboard stays on screen (but allow some overflow for better UX)
   function constrainToScreen(x, y, el) {
     const rect = el.getBoundingClientRect();
     const padding = 20; // Allow 20px overflow on each side
-    const maxX = window.innerWidth - rect.width + padding;
-    const maxY = window.innerHeight - rect.height + padding;
+    const maxX = window.innerWidth - Math.min(rect.width, 600) + padding;
+    const maxY = window.innerHeight - Math.min(rect.height, 400) + padding;
     return {
       x: Math.max(-padding, Math.min(x, maxX)),
       y: Math.max(-padding, Math.min(y, maxY))
     };
   }
   
-  // Apply initial position (constrain to screen first, but only if position seems off-screen)
-  if (xOffset !== 0 || yOffset !== 0 || currentScale !== 1) {
-    // Only constrain if position is way off screen
-    const rect = container.getBoundingClientRect();
-    const isOffScreen = xOffset < -100 || yOffset < -100 || 
-                        xOffset > window.innerWidth + 100 || 
-                        yOffset > window.innerHeight + 100;
+  // Wait for element to be laid out before calculating position
+  const initPosition = () => {
+    // Ensure overlay and container are visible
+    overlay.style.display = 'block';
+    overlay.style.visibility = 'visible';
+    container.style.visibility = 'visible';
+    container.style.display = 'block';
     
-    if (isOffScreen) {
-      const constrained = constrainToScreen(xOffset, yOffset, container);
-      xOffset = constrained.x;
-      yOffset = constrained.y;
+    // Check if position is valid and on-screen
+    const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+    const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    const isOffScreen = xOffset < -viewportWidth * 0.5 || 
+                        yOffset < -viewportHeight * 0.5 || 
+                        xOffset > viewportWidth * 1.5 || 
+                        yOffset > viewportHeight * 1.5;
+    
+    // If no saved position or way off screen, use default center position
+    if ((xOffset === 0 && yOffset === 0) || isOffScreen || !xOffset || !yOffset) {
+      const defaultPos = getDefaultPosition();
+      xOffset = defaultPos.x;
+      yOffset = defaultPos.y;
+    } else {
+      // Validate and constrain saved position
+      const rect = container.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) {
+        const constrained = constrainToScreen(xOffset, yOffset, container);
+        xOffset = constrained.x;
+        yOffset = constrained.y;
+      }
     }
+    
     setTranslate(xOffset, yOffset, container, currentScale);
-  }
+    
+    // Force a repaint to ensure visibility
+    void container.offsetHeight;
+  };
+  
+  // Initialize position after a brief delay to ensure layout
+  const tryInitPosition = () => {
+    if (container.offsetWidth > 0 && container.offsetHeight > 0) {
+      initPosition();
+    } else {
+      // Wait for layout - try multiple times
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (container.offsetWidth > 0) {
+            initPosition();
+          } else {
+            // Last attempt after a short delay
+            setTimeout(() => {
+              initPosition();
+            }, 100);
+          }
+        });
+      });
+    }
+  };
+  
+  tryInitPosition();
 
   // Add click handler for close button
   overlay.querySelector('#close-keyboard').addEventListener('click', (e) => {
@@ -357,16 +454,28 @@ function createKeyboardOverlay() {
     if (isDragging) {
       e.preventDefault();
       e.stopPropagation();
-      initialX = currentX;
-      initialY = currentY;
       isDragging = false;
       container.style.cursor = 'move';
+      
+      // Use xOffset and yOffset which are the actual saved positions
+      // Validate position before saving to prevent it from being way off-screen
+      const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
+      const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+      
+      // Ensure position is within reasonable bounds before saving
+      const validX = Math.max(-viewportWidth * 0.3, Math.min(xOffset, viewportWidth * 1.3));
+      const validY = Math.max(-viewportHeight * 0.3, Math.min(yOffset, viewportHeight * 1.3));
+      
+      xOffset = validX;
+      yOffset = validY;
+      initialX = xOffset;
+      initialY = yOffset;
       
       // Save position
       try {
         chrome.storage.local.set({ 
-          keyboardX: currentX, 
-          keyboardY: currentY 
+          keyboardX: validX, 
+          keyboardY: validY 
         }, () => {
           if (chrome.runtime.lastError) {
             console.log('Storage error:', chrome.runtime.lastError);
@@ -375,6 +484,13 @@ function createKeyboardOverlay() {
       } catch (e) {
         console.log('Error saving position:', e);
       }
+      
+      // Ensure overlay stays visible and on top
+      overlay.style.display = 'block';
+      overlay.style.visibility = 'visible';
+      overlay.style.zIndex = '2147483647';
+      container.style.visibility = 'visible';
+      container.style.zIndex = '2147483647';
     }
   }
 
@@ -422,30 +538,64 @@ function handleKeyPress(event) {
 
 // Toggle keyboard visibility
 function toggleKeyboard() {
-  keyboardVisible = !keyboardVisible;
-
-  // Remove any duplicate overlays first
-  const existingOverlays = document.querySelectorAll('#arabic-keyboard-overlay');
-  if (existingOverlays.length > 1) {
-    // Keep only the first one, remove the rest
-    for (let i = 1; i < existingOverlays.length; i++) {
-      existingOverlays[i].remove();
-    }
+  // Prevent rapid toggling
+  if (isToggling) {
+    return;
   }
+  
+  isToggling = true;
+  
+  // Remove ALL existing overlays first (more aggressive cleanup)
+  const existingOverlays = document.querySelectorAll('#arabic-keyboard-overlay');
+  existingOverlays.forEach(overlay => {
+    try {
+      overlay.remove();
+    } catch (e) {
+      // Fallback cleanup
+      overlay.style.display = 'none';
+      if (overlay.parentNode) {
+        overlay.parentNode.removeChild(overlay);
+      }
+    }
+  });
+  keyboardOverlay = null;
+  
+  keyboardVisible = !keyboardVisible;
 
   if (keyboardVisible) {
     // Load settings first, then create and show
     loadSavedSettings((settings) => {
       savedPosition = settings;
-      if (!keyboardOverlay || !document.body.contains(keyboardOverlay)) {
-        keyboardOverlay = createKeyboardOverlay();
+      
+      // Double-check no overlays exist before creating
+      const checkOverlays = document.querySelectorAll('#arabic-keyboard-overlay');
+      if (checkOverlays.length > 0) {
+        checkOverlays.forEach(ov => ov.remove());
       }
-      keyboardOverlay.style.display = 'block';
+      
+      keyboardOverlay = createKeyboardOverlay();
+      
+      if (keyboardOverlay) {
+        // Ensure it's visible and on top
+        keyboardOverlay.style.display = 'block';
+        keyboardOverlay.style.zIndex = '2147483647';
+        
+        // Force a reflow to ensure positioning
+        void keyboardOverlay.offsetHeight;
+        
+        isToggling = false;
+      } else {
+        isToggling = false;
+      }
     });
   } else {
-    if (keyboardOverlay) {
-      keyboardOverlay.style.display = 'none';
-    }
+    // Hide all overlays
+    const allOverlays = document.querySelectorAll('#arabic-keyboard-overlay');
+    allOverlays.forEach(overlay => {
+      overlay.style.display = 'none';
+    });
+    keyboardOverlay = null;
+    isToggling = false;
   }
 
   // Save state
