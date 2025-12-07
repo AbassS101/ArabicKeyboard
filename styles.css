@@ -1,24 +1,5 @@
 #arabic-keyboard-overlay {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  right: 0 !important;
-  bottom: 0 !important;
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important;
   display: none;
-  z-index: 2147483647 !important;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  pointer-events: none !important;
-  isolation: isolate !important;
-  transform: translateZ(0) !important;
-  will-change: transform;
-  margin: 0 !important;
-  padding: 0 !important;
-  border: none !important;
-  overflow: visible !important;
-  box-sizing: border-box !important;
 }
 
 .keyboard-container {
@@ -31,10 +12,10 @@
   width: auto !important;
   animation: slideIn 0.3s ease-out;
   pointer-events: auto !important;
-  cursor: move !important;
+  cursor: default !important;
   opacity: 0.95 !important;
   transition: opacity 0.2s ease;
-  position: absolute !important;
+  position: fixed !important;
   overflow: hidden;
   border: 2px solid #1a252f !important;
   touch-action: none !important;
@@ -45,6 +26,7 @@
   will-change: transform;
   box-sizing: border-box !important;
   visibility: visible !important;
+  margin: 0 !important;
 }
 
 .keyboard-container:hover {
@@ -56,15 +38,17 @@
 }
 
 .resize-handle {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 20px;
-  height: 20px;
-  cursor: nwse-resize;
+  position: absolute !important;
+  bottom: 0 !important;
+  right: 0 !important;
+  width: 20px !important;
+  height: 20px !important;
+  cursor: nwse-resize !important;
   background: linear-gradient(135deg, transparent 0%, transparent 40%, rgba(255,255,255,0.3) 40%, rgba(255,255,255,0.3) 45%, transparent 45%, transparent 55%, rgba(255,255,255,0.3) 55%, rgba(255,255,255,0.3) 60%, transparent 60%);
-  border-bottom-right-radius: 15px;
-  z-index: 10;
+  border-bottom-right-radius: 15px !important;
+  z-index: 2147483648 !important;
+  pointer-events: auto !important;
+  touch-action: none !important;
 }
 
 .resize-handle:hover {
@@ -86,13 +70,16 @@
   height: 24px;
   border-radius: 4px;
   font-size: 14px;
-  cursor: pointer;
+  cursor: pointer !important;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s ease;
   line-height: 1;
   padding: 0;
+  pointer-events: auto !important;
+  z-index: 10 !important;
+  position: relative !important;
 }
 
 .size-btn:hover {
@@ -112,12 +99,15 @@
 }
 
 .keyboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  color: white;
-  cursor: move;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  margin-bottom: 12px !important;
+  color: white !important;
+  cursor: move !important;
+  pointer-events: auto !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
 }
 
 .keyboard-title {
@@ -134,7 +124,7 @@
   height: 28px;
   border-radius: 50%;
   font-size: 20px;
-  cursor: pointer;
+  cursor: pointer !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -142,6 +132,9 @@
   line-height: 1;
   padding: 0;
   flex-shrink: 0;
+  pointer-events: auto !important;
+  z-index: 10 !important;
+  position: relative !important;
 }
 
 .close-btn:hover {
@@ -155,6 +148,7 @@
   border-radius: 12px;
   padding: 12px;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+  pointer-events: auto !important;
 }
 
 .keyboard-row {
